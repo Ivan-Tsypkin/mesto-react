@@ -4,7 +4,7 @@ import Footer from './Footer';
 import Main from './Main';
 import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 function App() {
@@ -23,6 +23,16 @@ function App() {
     setCardDeleteConfirmOpen(false);
     setSelectedCard({isOpen: false, data: {}});
   }
+
+  useEffect(() => {
+    const closeByEscape = (event) => {
+      if (event.key === 'Escape') {
+        closeAllPopups();
+      }
+    }
+    document.addEventListener('keydown', closeByEscape)
+    return () => document.removeEventListener('keydown', closeByEscape)
+  }, [])
 
   function handleCardClick(data) {
     setSelectedCard(
