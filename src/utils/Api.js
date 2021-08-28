@@ -30,8 +30,8 @@ class Api {
       method: 'PATCH',
       headers: this._headers,
       body: JSON.stringify({
-        name: data.userName,
-        about: data.userJob
+        name: data.name,
+        about: data.about
       })
     })
       .then(res => this._handleResponse(res))
@@ -42,7 +42,7 @@ class Api {
       method: 'PATCH',
       headers: this._headers,
       body: JSON.stringify({
-        avatar: data.avatarLink,
+        avatar: data.avatar,
       })
     })
       .then(res => this._handleResponse(res))
@@ -53,8 +53,8 @@ class Api {
       method: 'POST',
       headers: this._headers,
       body: JSON.stringify({
-        name: data.picName,
-        link: data.picLink
+        name: data.name,
+        link: data.link
       })
     })
       .then(res => this._handleResponse(res))
@@ -68,7 +68,7 @@ class Api {
         .then(res => this._handleResponse(res))
   }
 
-  makeLike(cardId) {
+  _makeLike(cardId) {
     return fetch(`${this._baseUrl}/cards/likes/${cardId}`, {
       method: 'PUT',
       headers: this._headers
@@ -76,12 +76,20 @@ class Api {
         .then(res => this._handleResponse(res))
   }
 
-  makeUnlike(cardId) {
+  _makeUnlike(cardId) {
     return fetch(`${this._baseUrl}/cards/likes/${cardId}`, {
       method: 'DELETE',
       headers: this._headers
       })
         .then(res => this._handleResponse(res))
+  }
+
+  changeLikeCardStatus(cardId, isLiked) {
+    if (isLiked) {
+      return this._makeUnlike(cardId)
+    } else {
+      return this._makeLike(cardId)
+    }
   }
 
 }
