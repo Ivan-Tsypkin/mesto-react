@@ -14,26 +14,22 @@ import { useState, useEffect } from 'react';
 
 function App() {
 
-  const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
-  const [isCardDeleteConfirmOpen, setCardDeleteConfirmOpen] = useState({isOpen: false, cardToDelete: {}});
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isCardDeleteConfirmOpen, setIsCardDeleteConfirmOpen] = useState({isOpen: false, cardToDelete: {}});
   const [selectedCard, setSelectedCard] = useState({isOpen: false, data: {}})
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
   useEffect(() => {
-    api.getInitialCards()
+    Promise.all([
+      api.getInitialCards(),
+      api.getUserInfo()
+    ])
       .then(res => {
-        setCards(res)
-      })
-      .catch(error => console.log(error))
-  }, [])
-
-  useEffect(() => {
-    api.getUserInfo()
-      .then(res => {
-        setCurrentUser(res);
+        setCards(res[0]);
+        setCurrentUser(res[1]);
       })
       .catch(error => console.log(error))
   }, [])
@@ -49,10 +45,10 @@ function App() {
   }, [])
 
   function closeAllPopups() {
-    setEditProfilePopupOpen(false);
-    setEditAvatarPopupOpen(false);
-    setAddPlacePopupOpen(false);
-    setCardDeleteConfirmOpen({isOpen: false, cardToDelete: {}});
+    setIsEditProfilePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsCardDeleteConfirmOpen({isOpen: false, cardToDelete: {}});
     setSelectedCard({isOpen: false, data: selectedCard.data}); //Если очистить data при закрытии, то появляется неприятное искажение анимации закрытия: удаляется картинка и крестик закрытия перемещается в центр, а потом затухает
   }
 
@@ -114,6 +110,10 @@ function App() {
     .catch(error => console.log(error))
   }
 
+  function handleCardDeleteConfirm(card) {
+    setIsCardDeleteConfirmOpen({isOpen: true, cardToDelete: {...card}})
+  }
+
 
   return (
     <div className="page">
@@ -123,26 +123,49 @@ function App() {
           <Header />
 
           <Main
-            onEditProfile = {() => setEditProfilePopupOpen(true)}
-            onEditAvatar = {() => setEditAvatarPopupOpen(true)}
-            onAddPlace = {() => setAddPlacePopupOpen(true)}
+            onEditProfile = {() => setIsEditProfilePopupOpen(true)}
+            onEditAvatar = {() => setIsEditAvatarPopupOpen(true)}
+            onAddPlace = {() => setIsAddPlacePopupOpen(true)}
             onCardLike = {handleCardLike}
-            onCardDelete = {(card) => {setCardDeleteConfirmOpen({isOpen: true, cardToDelete: {...card}})}}
+            onCardDelete = {handleCardDeleteConfirm}
             onCardClick = {handleCardClick}
             cards = {cards}
           />
 
           <Footer />
 
-          <EditProfilePopup isOpen = {isEditProfilePopupOpen} onClose = {closeAllPopups} onUpdateUser = {handleUpdateUser} onOvelayClick = {closeAllPopups}/>
+          <EditProfilePopup
+            isOpen = {isEditProfilePopupOpen}
+            onClose = {closeAllPopups}
+            onUpdateUser = {handleUpdateUser}
+            onOvelayClick = {closeAllPopups}
+          />
 
-          <EditAvatarPopup isOpen = {isEditAvatarPopupOpen} onClose = {closeAllPopups} onUpdateAvatar = {handleUpdateAvatar} onOvelayClick = {closeAllPopups}/>
+          <EditAvatarPopup
+            isOpen = {isEditAvatarPopupOpen}
+            onClose = {closeAllPopups}
+            onUpdateAvatar = {handleUpdateAvatar}
+          />
 
-          <AddPlacePopup isOpen = {isAddPlacePopupOpen} onClose = {closeAllPopups} onAddPlace = {handleAddPlaceSubmit} onOvelayClick = {closeAllPopups}/>
+          <AddPlacePopup
+            isOpen = {isAddPlacePopupOpen}
+            onClose = {closeAllPopups}
+            onAddPlace = {handleAddPlaceSubmit}
+          />
 
-          <PopupWithForm name="delete-card-confirm" title="Вы уверены?" isOpen = {isCardDeleteConfirmOpen.isOpen} onClose = {closeAllPopups} buttonText="Да" onSubmit = {(e) => {handleCardDelete(e, isCardDeleteConfirmOpen.cardToDelete)}} onOvelayClick = {closeAllPopups}/>
+          <PopupWithForm
+            name="delete-card-confirm"
+            title="Вы уверены?"
+            isOpen = {isCardDeleteConfirmOpen.isOpen}
+            onClose = {closeAllPopups}
+            buttonText="Да"
+            onSubmit = {(e) => {handleCardDelete(e, isCardDeleteConfirmOpen.cardToDelete)}}
+          />
 
-          <ImagePopup {...selectedCard} onClose = {closeAllPopups} onOvelayClick = {closeAllPopups}/>
+          <ImagePopup
+            {...selectedCard}
+            onClose = {closeAllPopups}
+          />
 
         </CurrentUserContext.Provider>
       </div>
@@ -151,3 +174,5 @@ function App() {
 }
 
 export default App;
+
+//Спасибо за ревью и большое спасибо за подсказки (помогают лучше разобраться в теме)! Буду прикручивать индикацию загрузки и кастомную валидацию (пока есть вопросы, буду задавать на вебинаре). Деструктурировать пропсы возьму за привычку.

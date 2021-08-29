@@ -1,7 +1,8 @@
 function Footer() {
+  const currentDate = new Date()
   return (
   <footer className="footer">
-    <p className="footer__copyright">&copy; 2021. Mesto Russia. Иван Цыпкин</p>
+    <p className="footer__copyright">&copy; {currentDate.getFullYear()}. Mesto Russia. Иван Цыпкин</p>
   </footer>
   )
 }

@@ -17,14 +17,14 @@ export default function Main(props) {
       />
       <CardsSection>
         {props.cards.map(card => {
-            return <Card
+            return (<Card
               key = {card._id}
               card = {card}
               onCardDelete = {props.onCardDelete}
               onCardClick = {props.onCardClick}
               onCardLike = {props.onCardLike}
 
-            />
+            />)
           })
         }
       </CardsSection>
