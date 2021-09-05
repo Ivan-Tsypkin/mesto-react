@@ -41,7 +41,7 @@ export default function EditProfilePopup(props) {
         minLength="2"
         maxLength="40"
         required
-        value={name || ''} //Если присваивать value={name}, то в консоли будет ошибка "A component is changing an uncontrolled input to be controlled", т.е. я так понимаю пока данные с сервера не пришли value считается undefined и является неуправляемым, после прихода данных становится управляемым и появляется ошибка, поэтому задаём пустую строку по умолчанию
+        value={name || ''}
         onChange={(e) => setName(e.target.value)}
       />
       <span className="user-name-error popup__form-error-msg"></span>
